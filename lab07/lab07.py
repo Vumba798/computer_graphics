@@ -85,8 +85,6 @@ def fill_polygon(vertices, color):
                     image[y][math.floor(x)] = color
                     x+=1
 def cos(a, b):
-    print("a = ", a)
-    print("b = ", b)
     dotProduct = a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
     if dotProduct == 0: return 0
     return dotProduct / (math.sqrt(a[0]**2 + a[1]**2 + a[2]**2) *
@@ -171,9 +169,9 @@ def render_diamond():
 
             fill_polygon([point0,point1,point2],I)
 
-            draw_line(point0, point1, 60)
-            draw_line(point0, point2, 60)
-            draw_line(point2, point1, 60)
+            draw_line(point0, point1, I)
+            draw_line(point0, point2, I)
+            draw_line(point2, point1, I)
 
 
 render_diamond()
