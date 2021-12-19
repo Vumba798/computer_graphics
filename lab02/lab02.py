@@ -6,6 +6,7 @@ isDrawn = False
 image = np.zeros((512,512,3),np.uint8)
 _from = [-1,-1]
 _to = [-1,-1]
+imageUpdated = image
 
 def draw_line(x1,y1,x2,y2,color):
         global image
@@ -131,7 +132,10 @@ def click_and_draw(event,y,x, flags, param):
             image = np.zeros((512,512,3),np.uint8)
             polygon(255)
             cv.imshow("lab02", image)
-
+            vertices = []
+            _from = [-1,-1]
+            _to = [-1,-1]
+            isDrawn = False
 
 cv.namedWindow("lab02")
 cv.imshow("lab02", image)
