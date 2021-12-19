@@ -69,7 +69,6 @@ def draw_line(data,x1,y1,x2,y2,color):
                 y += pdy
             t += 1
             data[x][y] = color
-
 alpha = 0.0
 radius = 100
 x0 = 200
@@ -80,6 +79,7 @@ draw_circle(data,x0,y0,radius)
 while True:
     draw_line(data, x0,y0, x0+radius*math.cos(alpha), y0+radius*math.sin(alpha), 255)
     cv.imshow("lab01", data)
+    cv.imwrite("result.jpg", data)
     cv.waitKey(1)
     time.sleep(1)
     draw_line(data, x0,y0, x0+(radius-1)*math.cos(alpha), y0+(radius-1)*math.sin(alpha), 0)
