@@ -36,7 +36,7 @@ def draw_line(point_from,point_to,color):
 
     x = int(x)
     y = int(y)
-    image[x,y] = color
+    image[y,x] = color
     
     while t < el:
         error -= es
@@ -48,7 +48,7 @@ def draw_line(point_from,point_to,color):
             x += pdx
             y += pdy
         t += 1
-        image[x,y] = [color, color, color]
+        image[y,x] = color
 
 def distance(p0, p1, p2):
     k = (p2[1] - p0[1]) / (p2[0] - p0[0])
@@ -71,15 +71,18 @@ def bezierRotateX(p0,p1,p2,color):
     point0 = [p0[0],p0[1],0]
     point1 = [p1[0],p1[1],0]
     point2 = [p2[0],p2[1],0]
-    tmp0 = point0
-    tmp2 = point2
+    tmp0 = point0.copy()
+    tmp2 = point2.copy()
 
     for a in range(0,360,10):
         alpha = a * math.pi / 180
         tmp0[0] -= point1[0]
         tmp0[1] -= point1[1]
+        tmp0[2] -= point1[2]
         tmp2[0] -= point1[0]
         tmp2[1] -= point1[1]
+        tmp2[2] -= point1[2]
+
         data = [[1,0,0,0],
                 [0,math.cos(alpha),-math.sin(alpha),0],
                 [0,math.sin(alpha),math.cos(alpha),0],
@@ -87,25 +90,25 @@ def bezierRotateX(p0,p1,p2,color):
 
         out = []
         vec = [tmp0[0],tmp0[1],tmp0[2],1]
-        for i in range(0,3):
+        for i in range(0,4):
             tmp = 0
-            for j in range(0,3):
+            for j in range(0,4):
                 tmp += data[i][j] * vec[j]
             out.append(tmp)
-        futureP0 = [out[0][0]+point1[0],out[0][1]+point1[1]]
+        futureP0 = [out[0]+point1[0],out[1]+point1[1]]
 
         out = []
         vec = [tmp2[0],tmp2[1],tmp2[2],1]
-        for i in range(0,3):
+        for i in range(0,4):
             tmp = 0
-            for j in range(0,3):
+            for j in range(0,4):
                 tmp += data[i][j] * vec[j]
             out.append(tmp)
-        futureP2 = [out[0][0]+point1[0], out[0][1]+point1[1]]
+        futureP2 = [out[0]+point1[0], out[1]+point1[1]]
 
         bezier(futureP0, p1, futureP2, color)
-        tmp0 = point0
-        tmp2 = point2
+        tmp0 = point0.copy()
+        tmp2 = point2.copy()
 
 def bezierRotateY(p0,p1,p2,color):
     global image
@@ -128,26 +131,26 @@ def bezierRotateY(p0,p1,p2,color):
 
         out = []
         vec = [tmp0[0],tmp0[1],tmp0[2],1]
-        for i in range(0,3):
+        for i in range(0,4):
             tmp = 0
-            for j in range(0,3):
+            for j in range(0,4):
                 tmp += data[i][j] * vec[j]
             out.append(tmp)
-        futureP0 = [out[0][0]+point1[0],out[0][1]+point1[1]]
+        futureP0 = [out[0]+point1[0],out[1]+point1[1]]
 
         out = []
         vec = [tmp2[0],tmp2[1],tmp2[2],1]
-        for i in range(0,3):
+        for i in range(0,4):
             tmp = 0
-            for j in range(0,3):
+            for j in range(0,4):
                 tmp += data[i][j] * vec[j]
             out.append(tmp)
-        futureP2 = [out[0][0]+point1[0], out[0][1]+point1[1]]
+        futureP2 = [out[0]+point1[0], out[1]+point1[1]]
 
         bezier(futureP0, p1, futureP2, color)
 
-        tmp0 = point0
-        tmp2 = point2
+        tmp0 = point0.copy()
+        tmp2 = point2.copy()
 
 def bezierRotateZ(p0,p1,p2,color):
     global image
@@ -170,32 +173,32 @@ def bezierRotateZ(p0,p1,p2,color):
 
         out = []
         vec = [tmp0[0],tmp0[1],tmp0[2],1]
-        for i in range(0,3):
+        for i in range(0,4):
             tmp = 0
-            for j in range(0,3):
+            for j in range(0,4):
                 tmp += data[i][j] * vec[j]
             out.append(tmp)
-        futureP0 = [out[0][0]+point1[0],out[0][1]+point1[1]]
+        futureP0 = [out[0]+point1[0],out[1]+point1[1]]
 
         out = []
         vec = [tmp2[0],tmp2[1],tmp2[2],1]
-        for i in range(0,3):
+        for i in range(0,4):
             tmp = 0
-            for j in range(0,3):
+            for j in range(0,4):
                 tmp += data[i][j] * vec[j]
             out.append(tmp)
-        futureP2 = [out[0][0]+point1[0], out[0][1]+point1[1]]
+        futureP2 = [out[0]+point1[0], out[1]+point1[1]]
 
         bezier(futureP0, p1, futureP2, color)
 
-        tmp0 = point0
-        tmp2 = point2
+        tmp0 = point0.copy()
+        tmp2 = point2.copy()
 
-def click_and_draw(event,y,x,flags,params):
+def click_and_draw(event,x,y,flags,params):
     global _first,_second,_third,image
     if event == cv.EVENT_LBUTTONDOWN:
         if _first == [-1,-1]:
-            _first = [-1,-1]
+            _first = [x,y]
         elif _second == [-1,-1]:
             _second = [x,y]
         elif _third == [-1,-1]:
