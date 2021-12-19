@@ -47,16 +47,6 @@ def draw_line(point_from,point_to,color):
         t += 1
         image[y,x] = color
 
-"""
-def polygon(vertices,color):
-    global image, isDrawn
-    for i in range(0, len(vertices) - 1):
-        draw_line(vertices[i][0], vertices[i][1],
-                vertices[i+1][0], vertices[i+1][1], color)
-    if isDrawn:
-        draw_line(vertices[-1][0], vertices[-1][1],
-                vertices[0][0], vertices[0][1], color)
-"""
 def fill_polygon(vertices, color):
     global image
     maxy = vertices[0][1]
@@ -68,7 +58,7 @@ def fill_polygon(vertices, color):
             miny = point[1]
     yarr = [[0.0]]
 
-    for i in range (1, maxy):
+    for i in range (1, int(maxy)):
         yarr.append([])
     for i in range(0, len(vertices)):
         next = 0
@@ -92,19 +82,21 @@ def fill_polygon(vertices, color):
             for j in range(0,int(len(xarr)/2)):
                 x = xarr[j*2]
                 while x < xarr[j*2 + 1]:
-                    image[math.floor(x)][y] = color
+                    image[y][math.floor(x)] = color
                     x+=1
 def cos(a, b):
-    print(a, b)
+    print("a = ", a)
+    print("b = ", b)
     dotProduct = a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+    if dotProduct == 0: return 0
     return dotProduct / (math.sqrt(a[0]**2 + a[1]**2 + a[2]**2) *
                          math.sqrt(b[0]**2 + b[1]**2 + b[2]**2))
 
 def render_diamond():
     global image
-    x0 = 200
+    x0 = 250
     y0 = 200
-    z0 = 200
+    z0 = -200
     vertices = []
     vertices.append([x0 + 0, y0 + 0, z0 + 78])
     vertices.append([x0 + 45, y0 + 45, z0 + 0])
@@ -114,7 +106,7 @@ def render_diamond():
     vertices.append([x0 + 0, y0 + 0, z0 - 78])
 
     alpha = math.pi / 2
-    betha = math.pi / 2
+    betha = math.pi / 6
     
     dataX = [[1,0,0,0],
             [0, math.cos(alpha),-math.sin(alpha), 0],
@@ -125,8 +117,8 @@ def render_diamond():
             [math.cos(betha), 0, -math.sin(betha), 0],
             [0,0,0,1]]
     
-    rotated = []
     for i in range(0, len(vertices)):
+        rotated = []
         vec = [vertices[i][0], vertices[i][1], vertices[i][2], 1]
         for j in range(0, 4):
             tmp = 0
@@ -155,7 +147,7 @@ def render_diamond():
     I_p = 235.0
     K_p = 0.4
 
-    lamp = [500, 20 ,5]
+    lamp = [50, 30 ,-20]
     for facet in facets:
         p0 = vertices[facet[0]]
         p1 = vertices[facet[1]]
@@ -176,15 +168,17 @@ def render_diamond():
             point1 = [p1[0], p1[1]]
             point2 = [p2[0], p2[1]]
 
+
             fill_polygon([point0,point1,point2],I)
-            draw_line(point0, point1, 40)
-            draw_line(point0, point2, 40)
-            draw_line(point2, point1, 40)
+
+            draw_line(point0, point1, 60)
+            draw_line(point0, point2, 60)
+            draw_line(point2, point1, 60)
 
 
 render_diamond()
 cv.namedWindow("lab07")
 cv.imshow("lab07", image)
 cv.waitKey()
-cv.writeimg("result.jpg", image)
+cv.imwrite("result.jpg", image)
 
