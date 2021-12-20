@@ -29,9 +29,7 @@ def draw_line(x1,y1,x2,y2,color):
         x, y = x1, y1
 
         error, t = el/2, 0        
-
-        image[x][y] = color
-
+        image[int(y)][int(x)] = color
         while t < el:
             error -= es
             if error < 0:
@@ -42,7 +40,7 @@ def draw_line(x1,y1,x2,y2,color):
                 x += pdx
                 y += pdy
             t += 1
-            image[x][y] = color
+            image[int(y)][int(x)] = color
 
 def polygon(color):
     global image, vertices, isDrawn
@@ -57,10 +55,10 @@ def cyrus_beck():
     global vertices, _from, _to
     normal = []
     for i in range(0, len(vertices)):
-        normal.append((
+        normal.append([
                 vertices[i][1] - vertices[(i+1) % len(vertices)][1],
                 vertices[(i+1) % len(vertices)][0] - vertices[i][0]
-                ))
+                ])
     diff = [_to[0] - _from[0], _to[1] - _from[1]]
 
     P0_PEi = []
@@ -75,7 +73,7 @@ def cyrus_beck():
     tL = []
     for i in range(0, len(vertices)):
         t = numerator[i] / denominator[i]
-        if denominator[i] > 0:
+        if denominator[i] < 0:
             tE.append(t)
         else:
             tL.append(t)
@@ -88,15 +86,28 @@ def cyrus_beck():
             tmp[1] = value
 
     if tmp[0] > tmp[1]:
-        _from = [-1,-1]
-        _to = [-1][-1]
-        return
+        tmp = [0.0, 1.0]
+        tE = []
+        tL = []
+        for i in range(0, len(vertices)):
+            t = numerator[i] / denominator[i]
+            if denominator[i] > 0:
+                tE.append(t)
+            else:
+                tL.append(t)
+        tmp = [0.0, 1.0]
+        for value in tE:
+            if value > tmp[0]:
+                tmp[0] = value
+        for value in tL:
+            if value < tmp[1]:
+                tmp[1] = value
 
-    _from = [_from[0] + diff[0]*tmp[0], _from[1] + diff[1]*tmp[0]]
     _to = [_from[0] + diff[0]*tmp[1], _from[1] + diff[1]*tmp[1]]
+    _from = [_from[0] + diff[0]*tmp[0], _from[1] + diff[1]*tmp[0]]
 
 
-def click_and_draw(event,y,x, flags, param):
+def click_and_draw(event,x,y, flags, param):
     global vertices, isDrawn, image, _from, _to
 
     if event == cv.EVENT_LBUTTONDOWN:
@@ -110,6 +121,7 @@ def click_and_draw(event,y,x, flags, param):
             polygon(255)
             cyrus_beck()
             if _from != [-1,-1] and _to != [-1,-1]:
+                print("DRAWING")
                 draw_line(_from[0],_from[1],_to[0],_to[1],255)
             _from = [-1,-1]
             _to = [-1,-1]
@@ -126,16 +138,13 @@ def click_and_draw(event,y,x, flags, param):
             polygon(255)
             draw_line(_from[0], _from[1], x, y, 255)
             cv.imshow("lab02", image)
-    elif event == cv.EVENT_MBUTTONUP:
+    elif event == cv.EVENT_MBUTTONDOWN:
         if len(vertices) != 0:
             isDrawn = True
             image = np.zeros((512,512,3),np.uint8)
             polygon(255)
-            cv.imshow("lab02", image)
-            vertices = []
             _from = [-1,-1]
-            _to = [-1,-1]
-            isDrawn = False
+            cv.imshow("lab02", image)
 
 cv.namedWindow("lab02")
 cv.imshow("lab02", image)
