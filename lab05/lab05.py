@@ -30,7 +30,7 @@ def draw_line(x1,y1,x2,y2,color):
 
         error, t = el/2, 0        
 
-        image[x][y] = color
+        image[y][x] = color
 
         while t < el:
             error -= es
@@ -42,7 +42,28 @@ def draw_line(x1,y1,x2,y2,color):
                 x += pdx
                 y += pdy
             t += 1
-            image[x][y] = color
+            image[y][x] = color
+
+def line_intersection(line1, line2):
+    if line1[0][1] == line2[0][1]:
+        return line2[0][0], line1[0][1]
+    if line2[0][1] == line2[1][1]:
+        return line2[1][0], line1[0][1]
+    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+    ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
+
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    div = det(xdiff, ydiff)
+    if div == 0:
+       raise Exception('lines do not intersect')
+
+    d = (det(*line1), det(*line2))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    return x, y
+
 
 
 def polygon(color):
@@ -55,43 +76,42 @@ def polygon(color):
                 vertices[0][0], vertices[0][1], color)
 
 def fill_polygon(color):
-    global image, vertices, _from, _to, isDrawn
+    global image, vertices, isDrawn
+    print("vertices:",vertices)
     maxy = vertices[0][1]
     miny = vertices[0][1]
+    edges = []
+    for i in range(0, len(vertices)):
+        edges.append([vertices[i -1], vertices[i]])
+    
     for point in vertices:
         if point[1] > maxy:
             maxy = point[1]
         if point[1] < miny:
             miny = point[1]
-    yarr = [[0.0]]
-    for i in range (1, maxy):
-        yarr.append([])
-    for i in range(0, len(vertices)):
-        next = 0
-        if i != len(vertices) - 1:
-            next = i + 1
-        up, down = 0, 0
-        if vertices[i][1] > vertices[next][1]:
-            up = i
-            down = next
-        elif vertices[i][1] < vertices[next][1]:
-            up = next
-            down = i
-        else: continue
+    
+    for y in range(miny+1, maxy-1):
+        xarr = []
+        for edge in edges:
+            vertA = edge[0]
+            vertB = edge[1]
+            if y < vertA[1] and y >= vertB[1] or y >= vertA[1] and y < vertB[1]:
+                x,tmp = line_intersection([[0,y],[512,y]],edge)
+                xarr.append(x)
+        intersectionsAmount = len(xarr)
+        print(xarr, y)
+        if intersectionsAmount%2 == 1:
+            print("mod = 1",xarr)
+            intersectionsAmount = intersectionsAmount - 1
+        for i in range(1, intersectionsAmount, 2):
+            odd = int(xarr[i-1])
+            even = int(xarr[i])
+            draw_line(odd,y,even,y,color)
+            for x in range(even,odd):
+                if y == miny + 20:
+                    print("x =", x)
 
-        k = (vertices[up][1] - vertices[down][1]) / (vertices[up][0] - vertices[down][0])
-        for j in range(int(vertices[down][1]), int(vertices[up][1])):
-            yarr[j].append((j - vertices[down][1])/k + vertices[down][0])
-        for y in range(int(miny), int(maxy)):
-            xarr = yarr[y]
-            xarr.sort()
-            for j in range(0,int(len(xarr)/2)):
-                x = xarr[j*2]
-                while x < xarr[j*2 + 1]:
-                    image[math.floor(x)][y] = color
-                    x+=1
-
-def click_and_draw(event,y,x,flags,param):
+def click_and_draw(event,x,y,flags,param):
     global image, vertices,_from,_to, isDrawn
     if event == cv.EVENT_LBUTTONDOWN:
         if not isDrawn:
@@ -105,6 +125,7 @@ def click_and_draw(event,y,x,flags,param):
             cv.imshow("lab05", image)
     elif event == cv.EVENT_MBUTTONDOWN:
         if len(vertices) != 0:
+            vertices.append([x,y])
             isDrawn = True
             image = np.zeros((512,512,3), np.uint8)
             polygon(255)
